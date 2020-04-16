@@ -51,6 +51,9 @@ class OpenMMEngineError(EngineError):
 class Psi4EngineError(EngineError):
     pass
 
+class ZmachineEngineError(EngineError):
+    pass
+
 class QChemEngineError(EngineError):
     pass
 
