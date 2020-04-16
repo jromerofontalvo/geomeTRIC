@@ -212,6 +212,9 @@ def parse_args(*args):
     parser.add_argument('--converge', type=str, nargs="+", default=[], help='Custom convergence criteria as key/value pairs.'
                         'Provide the name of a criteria set as "set GAU_LOOSE" or "set TURBOMOLE", and/or set specific criteria using "energy 1e-5" or "grms 1e-3')
     parser.add_argument('--nt', type=int, help='Specify number of threads for running in parallel (for TeraChem this should be number of GPUs)')
+    parser.add_argument('--proxy', type=str, default='', help='Specify IP address and the port number for the daemon optimizer in Orquestra')
+    parser.add_argument('--delta', type=float, default=1e-2, help='Geometry displacement for numerical derivatives')
+    parser.add_argument('--fdorder', type=int, default=4, help='Order of finite-difference approximation to use (2,4 or 6)')
     parser.add_argument('input', type=str, help='TeraChem or Q-Chem input file')
     parser.add_argument('constraints', type=str, nargs='?', help='Constraint input file (optional)')
     args = parser.parse_args(*args)

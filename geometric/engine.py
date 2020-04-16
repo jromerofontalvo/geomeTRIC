@@ -341,7 +341,7 @@ class Zmachine(Engine):
     """
     Run a prototypical Zmachine energy and gradient calculation.
     """
-    def __init__(self, molecule=None):
+    def __init__(self, molecule=None, fdorder=4, d=1e-2, proxy=''):
         self.basis = np.eye(3)
         # format num_points : ([c_{+num_points/2}, ..., c_{1}], denom)
         self.fd_formulae = {2 : ([1.0], 2.0), 4 : ([-1.0, 8.0], 12.0), 6 : ([1.0, -9.0, 45.0], 60.0) }
@@ -351,6 +351,12 @@ class Zmachine(Engine):
             molecule = Molecule()
             molecule.elem = ['H']
             molecule.xyzs = [[[0,0,0]]]
+
+        self.fd_options = {}
+        self.fd_options['npoint'] = fdorder
+        self.fd_options['d'] = d
+        print("fd_options: ", self.fd_options)
+        # Proxy will be ignored for now...
         super(Zmachine, self).__init__(molecule)
 
     def load_zmachine_input(self, zmachinein):
@@ -369,14 +375,11 @@ class Zmachine(Engine):
         self.psi4_options['scf_type'] = input_dict.get('scf_type', 'pk')
         self.psi4_options['e_convergence'] = input_dict.get('e_convergence', 11)
         self.psi4_options['d_convergence'] = input_dict.get('d_convergence', 11)
-        self.fd_options = {}
-        self.fd_options['npoint'] = input_dict.get('npoint', 2)
-        self.fd_options['d'] = input_dict.get('d', 0.01)
 
-        print("psi4_options: ", self.psi4_options)
-        print("fd_options: ", self.fd_options)
-        print(self.M.elem)
-        print(self.M.xyzs)
+        #print("psi4_options: ", self.psi4_options)
+        #print("fd_options: ", self.fd_options)
+        #print(self.M.elem)
+        #print(self.M.xyzs)
 
     def request_energy(self, geom, dirname):
         """ geom is [[np.array, ...]] 
