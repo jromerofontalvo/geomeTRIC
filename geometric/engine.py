@@ -337,6 +337,108 @@ class Blank(Engine):
         gradient = np.zeros(len(coords), dtype=float)
         return {'energy':energy, 'gradient':gradient}
 
+class Zmachine(Engine):
+    """
+    Run a prototypical Zmachine energy and gradient calculation.
+    """
+    def __init__(self, molecule=None):
+        self.basis = np.eye(3)
+        # format num_points : ([c_{+num_points/2}, ..., c_{1}], denom)
+        self.fd_formulae = {2 : ([1.0], 2.0), 4 : ([-1.0, 8.0], 12.0), 6 : ([1.0, -9.0, 45.0], 60.0) }
+        # molecule.py can not parse psi4 input yet, so we use self.load_psi4_input() as a walk around
+        if molecule is None:
+            # create a fake molecule
+            molecule = Molecule()
+            molecule.elem = ['H']
+            molecule.xyzs = [[[0,0,0]]]
+        super(Zmachine, self).__init__(molecule)
+
+    def load_zmachine_input(self, zmachinein):
+        """ Parse a JSON input file """
+        import json
+        coords = []
+        elems = []
+        with open(zmachinein, 'r') as f:
+            s = f.read()
+            input_dict = json.loads(s)
+        self.M = Molecule()
+        self.M.elem = input_dict['atoms']['elements']['symbols']
+        self.M.xyzs = [np.array(input_dict['atoms']['coords']['3d'], dtype=np.float64).reshape(-1, 3)]
+        self.psi4_options = {}
+        self.psi4_options['basis'] = input_dict.get('basis', 'sto-3g')
+        self.psi4_options['scf_type'] = input_dict.get('scf_type', 'pk')
+        self.psi4_options['e_convergence'] = input_dict.get('e_convergence', 11)
+        self.psi4_options['d_convergence'] = input_dict.get('d_convergence', 11)
+        self.fd_options = {}
+        self.fd_options['npoint'] = input_dict.get('npoint', 2)
+        self.fd_options['d'] = input_dict.get('d', 0.01)
+
+        print("psi4_options: ", self.psi4_options)
+        print("fd_options: ", self.fd_options)
+        print(self.M.elem)
+        print(self.M.xyzs)
+
+    def request_energy(self, geom, dirname):
+        """ geom is [[np.array, ...]] 
+        """
+        import psi4
+        if not os.path.exists(dirname): os.makedirs(dirname)
+        psi4out = os.path.join(dirname, 'output.dat')
+        psi4.core.set_output_file(psi4out, True)
+        psi4.set_options(self.psi4_options)
+        #create a str representations of molecular geometries and run Psi4
+        energies = []
+        for at_block in geom:
+            at_block_energy = []
+            for g in at_block:
+                g_str = ''
+                for atom, coords in zip(self.M.elem, g):
+                    g_str += "{0} {1:13.6f} {2:13.6} {3:13.6}\n".format(atom, coords[0], coords[1], coords[2])
+                tmp_mol = psi4.geometry(g_str)
+                at_block_energy.append(psi4.energy('scf', mol=tmp_mol))
+            energies.append(at_block_energy)
+
+        return energies
+
+    def compute_gradient(self, en):
+        assert self.fd_options['npoint'] % 2 == 0 and self.fd_options['npoint'] in self.fd_formulae
+        npoint = self.fd_options['npoint']
+        en = np.array(en)
+        en = en.reshape((-1, 3, npoint))
+        disp = self.fd_options['d']
+        # apply fd stencil to calculate derivatives
+        num = list(self.fd_formulae[npoint][0])
+        num.extend([-i for i in reversed(num)])
+        denom = self.fd_formulae[npoint][1] * disp
+        stencil = np.array(num) / denom
+        return np.einsum("ijk,k->ij", en, stencil)
+
+    def calc_new(self, coords, dirname):
+        # Convert coordinates back to the xyz file
+        self.M.xyzs[0] = coords.reshape(-1, 3) * bohr2ang # in angstrom!!
+        geometries = []
+        npoint_one_way = self.fd_options['npoint'] // 2
+        disp  = self.fd_options['d']
+        for at in range(len(self.M.elem)):
+            at_disp = []
+            for c in range(3):
+                for sc in range(npoint_one_way, -npoint_one_way-1, -1):
+                    if sc == 0:
+                        continue
+                    else:
+                        g = np.copy(self.M.xyzs[0])
+                        g[at] += sc * disp * self.basis[c]
+                        at_disp.append(g)
+            geometries.append(at_disp)
+
+        energies = self.request_energy(geometries,dirname)
+        ref_gradient = self.compute_gradient(energies)
+        ref_energy = self.request_energy([[self.M.xyzs[0]]], dirname)[0][0] # ugly...
+
+        print("ref_gradient: ", ref_gradient)
+
+        return {'energy':ref_energy, 'gradient':ref_gradient.ravel()}
+
 class TeraChem(Engine):
     """
     Run a TeraChem energy and gradient calculation.
@@ -711,6 +813,9 @@ class Psi4(Engine):
         self.M.xyzs = [np.array(coords, dtype=np.float64)]
         self.psi4_temp = psi4_temp
         self.fragn = fragn
+
+        print(self.M.elem)
+        print(self.M.xyzs)
 
     def calc_new(self, coords, dirname):
         if not os.path.exists(dirname): os.makedirs(dirname)
