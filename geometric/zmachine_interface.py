@@ -16,6 +16,7 @@ from zmachine.optimizer.proxy import Client
 from zmachine.domain.chem import save_molecular_geometry, MolecularGeometry
 from zmachine.core.utils import load_value_estimate
 import time
+import io
 
 class Zmachine(Engine):
     """
