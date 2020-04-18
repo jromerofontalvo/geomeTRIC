@@ -19,7 +19,7 @@ class Zmachine(Engine):
     """
     Run a prototypical Zmachine energy and gradient calculation.
     """
-    def __init__(self, molecule=None, fdorder=4, d=1e-2, proxy_ip=''):
+    def __init__(self, molecule=None, fdorder=4, d=1e-2, proxy=''):
         self.basis = np.eye(3)
         # format num_points : ([c_{+num_points/2}, ..., c_{1}], denom)
         self.fd_formulae = {2 : ([1.0], 2.0), 4 : ([-1.0, 8.0], 12.0), 6 : ([1.0, -9.0, 45.0], 60.0) }
@@ -34,10 +34,10 @@ class Zmachine(Engine):
         self.fd_options['npoint'] = fdorder
         self.fd_options['d'] = d
         print("fd_options: ", self.fd_options)
-        if proxy_ip == '':
+        if proxy == '':
             self.client = None
         else:
-            self.client = Client(proxy_ip, "8080")
+            self.client = Client(proxy, "8080")
 
         super(Zmachine, self).__init__(molecule)
 
@@ -90,7 +90,7 @@ class Zmachine(Engine):
             tmp_mol = psi4.geometry(g_str)
             return psi4.energy('scf', mol=tmp_mol)
         else:
-            """ Send a request to proxy """
+            """ Send a request to the proxy """
             # Encode params to json string
             # Create an geometry string in XYZ format
             g_xyz = "{}\n\n".format(len(self.M.elem))
@@ -149,9 +149,9 @@ class Zmachine(Engine):
                         at_disp.append(g)
             geometries.append(at_disp)
 
-        energies = self.request_energy(geometries,dirname)
+        energies = self.compute_energy(geometries,dirname)
         ref_gradient = self.compute_gradient(energies)
-        ref_energy = self.request_energy([[self.M.xyzs[0]]], dirname)[0][0] # ugly...
+        ref_energy = self.compute_energy([[self.M.xyzs[0]]], dirname)[0][0] # ugly...
 
         print("ref_gradient: ", ref_gradient)
 
