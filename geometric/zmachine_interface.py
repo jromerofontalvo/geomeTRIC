@@ -14,6 +14,7 @@ from .errors import EngineError, ZmachineEngineError
 
 from zmachine.optimizer.proxy import Client
 from zmachine.domain.chem import save_molecular_geometry, MolecularGeometry
+import time
 
 class Zmachine(Engine):
     """
