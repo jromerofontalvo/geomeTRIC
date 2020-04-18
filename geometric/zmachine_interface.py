@@ -103,17 +103,17 @@ class Zmachine(Engine):
                 current_geom_string = f.read()
 
             # POST params to proxy
-            evaluation_id = client.post_argument_values(current_geom_string)
+            evaluation_id = self.client.post_argument_values(current_geom_string)
 
             # POST status to EVALUATING
-            client.post_status("EVALUATING")
+            self.client.post_status("EVALUATING")
 
             # WAIT for status to be OPTIMIZING
-            while client.get_status() != "OPTIMIZING":
+            while self.client.get_status() != "OPTIMIZING":
                 time.sleep(1)
 
             # GET cost function evaluation from proxy
-            evaluation_string = client.get_evaluation_result(evaluation_id)
+            evaluation_string = self.client.get_evaluation_result(evaluation_id)
             value_estimate = load_value_estimate(io.StringIO(evaluation_string))
 
             return value_estimate.value
