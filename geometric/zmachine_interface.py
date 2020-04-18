@@ -71,7 +71,7 @@ class Zmachine(Engine):
         for at_block in geom:
             at_block_energy = []
             for g in at_block:
-                at_block_energy.append(request_energy(g, dirname))
+                at_block_energy.append(self.request_energy(g, dirname))
             energies.append(at_block_energy)
 
         return energies
