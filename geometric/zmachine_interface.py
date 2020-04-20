@@ -17,6 +17,7 @@ from zmachine.domain.chem import save_molecular_geometry, MolecularGeometry
 from zmachine.core.utils import load_value_estimate
 import time
 import io
+import json
 
 class Zmachine(Engine):
     """
@@ -117,9 +118,13 @@ class Zmachine(Engine):
 
             # GET cost function evaluation from proxy
             evaluation_string = self.client.get_evaluation_result(evaluation_id)
-            value_estimate = load_value_estimate(io.StringIO(evaluation_string))
+            res = json.loads(evaluation_string)
 
-            return value_estimate.value
+            #For psi4 (will have to write adapters for other templates)
+            return res['energy']
+
+            #value_estimate = load_value_estimate(io.StringIO(evaluation_string))
+            #return value_estimate.value
 
     def compute_gradient(self, en):
         assert self.fd_options['npoint'] % 2 == 0 and self.fd_options['npoint'] in self.fd_formulae
