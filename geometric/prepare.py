@@ -39,7 +39,7 @@ import numpy as np
 
 from .internal import Distance, Angle, Dihedral, CartesianX, CartesianY, CartesianZ, TranslationX, TranslationY, TranslationZ, RotationA, RotationB, RotationC
 from .engine import set_tcenv, load_tcin, TeraChem, ConicalIntersection, Psi4, QChem, Gromacs, Molpro, OpenMM, QCEngineAPI
-from .zmachine_interface import Zmachine
+from .zmachine_interface import Zmachine, Zmachine_batch
 from .molecule import Molecule, Elements
 from .nifty import logger, isint, uncommadash, bohr2ang, ang2bohr
 
@@ -213,6 +213,12 @@ def get_molecule_engine(**kwargs):
         elif engine_str == 'zmachine':
             logger.info("Zmachine engine selected.\n")
             engine = Zmachine(proxy=proxy, fdorder=fdorder, d=delta)
+            engine.load_zmachine_input(inputf) # this should be just geometry
+            M = engine.M
+            M.top_settings['radii'] = radii
+        elif engine_str == 'zmachine_batch':
+            logger.info("Zmachine engine selected (will be started in batch mode).\n")
+            engine = Zmachine_batch(proxy=proxy)
             engine.load_zmachine_input(inputf) # this should be just geometry
             M = engine.M
             M.top_settings['radii'] = radii

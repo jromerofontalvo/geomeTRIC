@@ -165,3 +165,54 @@ class Zmachine(Engine):
 
         return {'energy':ref_energy, 'gradient':ref_gradient.ravel()}
 
+class Zmachine_batch(Engine):
+    """
+    Run a prototypical Zmachine energy and gradient calculation.
+    """
+    def __init__(self, molecule=None, proxy):
+        # molecule.py can not parse psi4 input yet, so we use self.load_psi4_input() as a walk around
+        if molecule is None:
+            # create a fake molecule
+            molecule = Molecule()
+            molecule.elem = ['H']
+            molecule.xyzs = [[[0,0,0]]]
+
+        self.client = Client(proxy, "8080")
+        super(Zmachine, self).__init__(molecule)
+
+    def load_zmachine_input(self, zmachinein):
+        """ Parse a JSON input file """
+        import json
+        coords = []
+        elems = []
+        with open(zmachinein, 'r') as f:
+            s = f.read()
+            input_dict = json.loads(s)
+        self.M = Molecule()
+        self.M.elem = input_dict['atoms']['elements']['symbols']
+        self.M.xyzs = [np.array(input_dict['atoms']['coords']['3d'], dtype=np.float64).reshape(-1, 3)]
+
+    def calc_new(self, coords, dirname):
+        """ Send a request to the proxy """
+        # Convert coordinates back to the xyz file
+        self.M.xyzs[0] = coords.reshape(-1, 3) * bohr2ang # in angstrom!!
+        # Encode params to json string
+        save_molecular_geometry(tmp_mol, 'current_molecular_geometry.json')
+        with open('current_molecular_geometry.json', 'r') as f:
+            current_geom_string = f.read()
+
+        # POST params to proxy
+        evaluation_id = self.client.post_argument_values(current_geom_string)
+
+        # POST status to EVALUATING
+        self.client.post_status("EVALUATING")
+
+        # WAIT for status to be OPTIMIZING
+        while self.client.get_status() != "OPTIMIZING":
+            time.sleep(1)
+
+        # GET cost function evaluation from proxy
+        evaluation_string = self.client.get_evaluation_result(evaluation_id)
+        res = json.loads(evaluation_string) # res is a dict with `energy` : float and `gradient` : list of floats
+
+        return {'energy': res['energy'], 'gradient': np.array(res['gradient'])}
