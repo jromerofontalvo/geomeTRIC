@@ -83,7 +83,7 @@ def get_molecule_engine(**kwargs):
 
     ## MECI calculations create a custom engine that contains two other engines.
     if kwargs.get('meci', None):
-        if engine_str.lower() in ['psi4', 'zmachine', 'gmx', 'molpro', 'qcengine', 'openmm'] or customengine:
+        if engine_str.lower() in ['psi4', 'zmachine', 'zmachine_batch', 'gmx', 'molpro', 'qcengine', 'openmm'] or customengine:
             logger.warning("MECI optimizations are not tested with engines: psi4, gmx, molpro, qcegine, openmm, customengine. Be Careful!")
         ## If 'engine' is provided as the argument to 'meci', then we assume the engine is
         # directly returning the MECI objective function and gradient.
@@ -119,7 +119,7 @@ def get_molecule_engine(**kwargs):
     threads_enabled = False
     if engine_str:
         engine_str = engine_str.lower()
-        if engine_str not in ['tera', 'qchem', 'psi4', 'gmx', 'molpro', 'openmm', 'qcengine', 'zmachine']:
+        if engine_str not in ['tera', 'qchem', 'psi4', 'gmx', 'molpro', 'openmm', 'qcengine', 'zmachine', 'zmachine_batch']:
             raise RuntimeError("Valid values of engine are: tera, qchem, psi4, gmx, molpro, openmm, qcengine")
         if customengine:
             raise RuntimeError("engine and customengine cannot simultaneously be set")
