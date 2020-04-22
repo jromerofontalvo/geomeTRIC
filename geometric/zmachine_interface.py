@@ -178,7 +178,7 @@ class Zmachine_batch(Engine):
             molecule.xyzs = [[[0,0,0]]]
 
         self.client = Client(proxy, "8080")
-        super(Zmachine, self).__init__(molecule)
+        super(Zmachine_batch, self).__init__(molecule)
 
     def load_zmachine_input(self, zmachinein):
         """ Parse a JSON input file """
