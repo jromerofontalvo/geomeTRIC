@@ -197,7 +197,7 @@ class Zmachine_batch(Engine):
         # Convert coordinates back to the xyz file
         self.M.xyzs[0] = coords.reshape(-1, 3) * bohr2ang # in angstrom!!
         g_xyz = "{}\n\n".format(len(self.M.elem))
-        for atom, coords in zip(self.M.elem, self.M.xyzs):
+        for atom, coords in zip(self.M.elem, self.M.xyzs[0]):
             g_xyz += "{0} {1:15.8f} {2:15.8} {3:15.8}\n".format(atom, coords[0], coords[1], coords[2])
         tmp_mol = MolecularGeometry.from_xyz(g_xyz)
         # Encode params to json string
