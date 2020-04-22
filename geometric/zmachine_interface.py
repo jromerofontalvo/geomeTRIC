@@ -169,7 +169,7 @@ class Zmachine_batch(Engine):
     """
     Run a prototypical Zmachine energy and gradient calculation.
     """
-    def __init__(self, molecule=None, proxy):
+    def __init__(self, proxy, molecule=None):
         # molecule.py can not parse psi4 input yet, so we use self.load_psi4_input() as a walk around
         if molecule is None:
             # create a fake molecule
