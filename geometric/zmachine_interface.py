@@ -222,4 +222,4 @@ class Zmachine_batch(Engine):
         # Gradients need to be converted from [Ha/Angstrom] to [Ha/Bohr] in order to be used by GeomeTRIC
         gradient = np.array(res['gradient']) * bohr2ang # Conversion Ha/Angstrom * Angstrom/Bohr = Ha/Bohr
 
-        return {'energy': res['energy'], 'gradient': }
+        return {'energy': res['energy'], 'gradient': gradient }
