@@ -170,7 +170,7 @@ class Zmachine_batch(Engine):
     Run a prototypical Zmachine energy and gradient calculation.
     """
     def __init__(self, proxy, molecule=None):
-        # molecule.py can not parse psi4 input yet, so we use self.load_psi4_input() as a walk around
+        # molecule.py can not parse psi4 input yet, so we use self.load_psi4_input() as a workaround
         if molecule is None:
             # create a fake molecule
             molecule = Molecule()
@@ -219,4 +219,7 @@ class Zmachine_batch(Engine):
         evaluation_string = self.client.get_evaluation_result(evaluation_id)
         res = json.loads(evaluation_string) # res is a dict with `energy` : float and `gradient` : list of floats
 
-        return {'energy': res['energy'], 'gradient': np.array(res['gradient'])}
+        # Gradients need to be converted from [Ha/Angstrom] to [Ha/Bohr] in order to be used by GeomeTRIC
+        gradient = np.array(res['gradient']) * bohr2ang # Conversion Ha/Angstrom * Angstrom/Bohr = Ha/Bohr
+
+        return {'energy': res['energy'], 'gradient': }
