@@ -732,6 +732,15 @@ def run_optimizer(**kwargs):
         write_displacements(coords, M, IC, dirname, verbose)
         return
 
+    get_hessian = kwargs.get('get_hessian', False) # Check gradient calculation is requested ...    
+    if get_hessian:
+        Hq, Hq_f = check_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
+        if self.params.write_cart_hess:
+            # One last Hessian update before writing it out
+            np.savetxt(self.params.write_cart_hess, Hq, fmt='% 14.10f')
+            np.savetxt(self.params.write_cart_hess+'_f', Hq_f, fmt='% 14.10f')
+        return
+
     fdcheck = kwargs.get('fdcheck', False) # Check internal coordinate gradients using finite difference..
     if fdcheck:
         IC.Prims.checkFiniteDifferenceGrad(coords)

@@ -72,7 +72,10 @@ def check_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     E = spcalc['energy']
     gradx = spcalc['gradient']
     # Finite difference step
-    h = 1.0e-3
+    if hasattr(engine, 'fd_options'):
+        h = engine.fd_options['d']
+    else:
+        h = 1.0e-3
 
     # Calculate Hessian using finite difference
     nc = len(coords)
@@ -97,7 +100,10 @@ def check_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     Hq_f = np.zeros((len(q0), len(q0)), dtype=float)
     logger.info("-=# Now checking Hessian of the energy in internal coordinates using finite difference on gradient #=-\n")
     logger.info("%20s %20s : %14s %14s %14s\n" % ('IC1 Name', 'IC2 Name', 'Analytic', 'Numerical', 'Abs-Diff'))
-    h = 1.0e-2
+    if hasattr(engine, 'fd_options'):
+        h = engine.fd_options['d']
+    else:
+        h = 1.0e-2
     for i in range(len(q0)):
         dq = np.zeros_like(q0)
         dq[i] += h
