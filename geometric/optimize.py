@@ -48,7 +48,7 @@ from numpy.linalg import multi_dot
 import geometric
 from .info import print_logo, print_citation
 from .internal import CartesianCoordinates, PrimitiveInternalCoordinates, DelocalizedInternalCoordinates
-from .ic_tools import check_internal_grad, check_internal_hess, write_displacements
+from .ic_tools import check_internal_grad, check_internal_hess, write_displacements, compute_internal_hess
 from .normal_modes import calc_cartesian_hessian
 from .step import brent_wiki, Froot, calc_drms_dmax, get_cartesian_norm, rebuild_hessian, get_delta_prime, trust_step
 from .prepare import get_molecule_engine, parse_constraints
@@ -734,11 +734,9 @@ def run_optimizer(**kwargs):
 
     get_hessian = kwargs.get('get_hessian', False) # Check gradient calculation is requested ...    
     if get_hessian:
-        Hq, Hq_f = check_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
+        Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
         if self.params.write_cart_hess:
-            # One last Hessian update before writing it out
             np.savetxt(self.params.write_cart_hess, Hq, fmt='% 14.10f')
-            np.savetxt(self.params.write_cart_hess+'_f', Hq_f, fmt='% 14.10f')
         return
 
     fdcheck = kwargs.get('fdcheck', False) # Check internal coordinate gradients using finite difference..
