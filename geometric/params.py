@@ -184,6 +184,7 @@ def parse_args(*args):
     parser.add_argument('--prefix', type=str, default=None, help='Specify a prefix for log file and temporary directory.')
     parser.add_argument('--displace', action='store_true', help='Write out the displacements of the coordinates.')
     parser.add_argument('--fdcheck', action='store_true', help='Check internal coordinate gradients using finite difference.')
+    parser.add_argument('--get_hessian', action='store_true', help='Compute Hessian as the numerical Jacobian of the Gradient.')
     parser.add_argument('--enforce', type=float, default=0.0, help='Enforce exact constraints when within provided tolerance (in a.u. and radian)')
     parser.add_argument('--conmethod', type=int, default=0, help='Set to 1 to enable updated constraint algorithm.')
     parser.add_argument('--write_cart_hess', type=str, default=None, help='Convert current Hessian matrix at optimized geometry to Cartesian coords and write to specified file.')
