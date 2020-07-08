@@ -74,6 +74,7 @@ def check_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     # Finite difference step
     if hasattr(engine, 'fd_options'):
         h = engine.fd_options['d']
+        print("fd_options[d] will be used in finite difference")
     else:
         h = 1.0e-3
 
@@ -102,6 +103,7 @@ def check_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     logger.info("%20s %20s : %14s %14s %14s\n" % ('IC1 Name', 'IC2 Name', 'Analytic', 'Numerical', 'Abs-Diff'))
     if hasattr(engine, 'fd_options'):
         h = engine.fd_options['d']
+        print("fd_options[d] will be used in finite difference")
     else:
         h = 1.0e-2
     for i in range(len(q0)):
