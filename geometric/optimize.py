@@ -734,8 +734,10 @@ def run_optimizer(**kwargs):
 
     get_hessian = kwargs.get('get_hessian', False) # Check gradient calculation is requested ...    
     if get_hessian:
-        Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
+        #Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
+        Hq = np.zeros((4,4))
         write_cart_hess = kwargs.get('write_cart_hess', False)
+        print("Name of hessian file:", write_cart_hess)
         if write_cart_hess:
             np.savetxt(write_cart_hess, Hq, fmt='% 14.10f')
         return
