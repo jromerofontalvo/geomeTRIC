@@ -164,9 +164,13 @@ def compute_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     Eigq = sorted(np.linalg.eigh(Hq)[0])
     logger.info("Hessian Eigenvalues (Internal):\n")
     for i in range(len(Eigq)):
-        logger.info("% 10.5f %s" % (Eigq[i], "\n" if i%9 == 8 else ""))
-    return Hq
-    
+        logger.info("% 10.9f %s" % (Eigq[i], "\n" if i%9 == 8 else ""))
+    Eigx = sorted(np.linalg.eigh(Hx)[0])
+    logger.info("Hessian Eigenvalues (Cartesian):\n")
+    for i in range(len(Eigx)):
+        logger.info("% 10.9f %s" % (Eigx[i], "\n" if i%9 == 8 else ""))
+    return Hx, Hq
+
 def write_displacements(coords, M, IC, dirname, verbose):
     """
     Write coordinate files containing animations
