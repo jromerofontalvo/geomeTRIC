@@ -737,7 +737,7 @@ def run_optimizer(**kwargs):
         Hx, Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
         write_cart_hess = kwargs.get('write_cart_hess', False)
         if write_cart_hess:
-            np.savetxt(write_cart_hess+_'ic', Hq, fmt='% 14.10f')
+            np.savetxt(write_cart_hess+'_ic', Hq, fmt='% 14.10f')
         if write_cart_hess:
             np.savetxt(write_cart_hess+'_cart', Hx, fmt='% 14.10f')
         return
