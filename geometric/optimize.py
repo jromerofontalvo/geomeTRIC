@@ -742,10 +742,10 @@ def run_optimizer(**kwargs):
         print("Hq:\n")
         print(Hq)
         if write_cart_hess:
-            print(write_cart_hess+'_ic.out')
-            print(write_cart_hess+'_cart.out')
-            np.savetxt(write_cart_hess+'_ic.out', Hq, fmt='% 14.10f')
-            np.savetxt(write_cart_hess+'_cart.out', Hx, fmt='% 14.10f')
+            print(write_cart_hess+'-ic.out')
+            print(write_cart_hess+'-cart.out')
+            np.savetxt(write_cart_hess+'-ic.out', Hq, fmt='% 14.10f')
+            np.savetxt(write_cart_hess+'-cart.out', Hx, fmt='% 14.10f')
         return
 
     fdcheck = kwargs.get('fdcheck', False) # Check internal coordinate gradients using finite difference..
