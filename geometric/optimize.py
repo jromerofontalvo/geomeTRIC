@@ -738,7 +738,6 @@ def run_optimizer(**kwargs):
         write_cart_hess = kwargs.get('write_cart_hess', False)
         if write_cart_hess:
             np.savetxt(write_cart_hess+'_ic.out', Hq, fmt='% 14.10f')
-        if write_cart_hess:
             np.savetxt(write_cart_hess+'_cart.out', Hx, fmt='% 14.10f')
         return
 
