@@ -734,10 +734,18 @@ def run_optimizer(**kwargs):
 
     get_hessian = kwargs.get('get_hessian', False) # Check gradient calculation is requested ...    
     if get_hessian:
-        Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
+        Hx, Hq = compute_internal_hess(coords, M, IC.Prims, engine, dirname, verbose)
         write_cart_hess = kwargs.get('write_cart_hess', False)
+        print("write_cart_hess", write_cart_hess)
+        print("Hx:\n")
+        print(Hx)
+        print("Hq:\n")
+        print(Hq)
         if write_cart_hess:
-            np.savetxt(write_cart_hess, Hq, fmt='% 14.10f')
+            print(write_cart_hess+'-ic.out')
+            print(write_cart_hess+'-cart.out')
+            np.savetxt(write_cart_hess+'-ic.out', Hq, fmt='% 14.10f')
+            np.savetxt(write_cart_hess+'-cart.out', Hx, fmt='% 14.10f')
         return
 
     fdcheck = kwargs.get('fdcheck', False) # Check internal coordinate gradients using finite difference..
