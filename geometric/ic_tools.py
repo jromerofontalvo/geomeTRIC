@@ -138,31 +138,29 @@ def compute_internal_hess(coords, molecule, IC, engine, dirname, verbose=0):
     """ Calculate the Cartesian Hessian using finite difference,
     transform to internal coordinates. """
     # Initial energy and gradient
-    # spcalc = engine.calc(coords, dirname)
-    # E = spcalc['energy']
-    # gradx = spcalc['gradient']
-    # # Finite difference step
-    # if hasattr(engine, 'fd_options'):
-    #     h = engine.fd_options['d']
-    #     print("fd_options[d] will be used in finite difference")
-    # else:
-    #     h = 1.0e-3
-    # # Calculate Hessian using finite difference
-    # nc = len(coords)
-    # Hx = np.zeros((nc, nc), dtype=float)
-    # logger.info("Calculating Cartesian Hessian using finite difference on Cartesian gradients\n")
-    # for i in range(nc):
-    #     logger.info(" coordinate %i/%i\n" % (i+1, nc))
-    #     coords[i] += h
-    #     gplus = engine.calc(coords, dirname)['gradient']
-    #     coords[i] -= 2*h
-    #     gminus = engine.calc(coords, dirname)['gradient']
-    #     coords[i] += h
-    #     Hx[i] = (gplus-gminus)/(2*h)
-    # # Internal coordinate Hessian using analytic transformation
-    # Hq = IC.calcHess(coords, gradx, Hx)
-    Hx = np.ones((4,4))
-    Hq = np.ones((4,4))
+    spcalc = engine.calc(coords, dirname)
+    E = spcalc['energy']
+    gradx = spcalc['gradient']
+    # Finite difference step
+    if hasattr(engine, 'fd_options'):
+        h = engine.fd_options['d']
+        print("fd_options[d] will be used in finite difference")
+    else:
+        h = 1.0e-3
+    # Calculate Hessian using finite difference
+    nc = len(coords)
+    Hx = np.zeros((nc, nc), dtype=float)
+    logger.info("Calculating Cartesian Hessian using finite difference on Cartesian gradients\n")
+    for i in range(nc):
+        logger.info(" coordinate %i/%i\n" % (i+1, nc))
+        coords[i] += h
+        gplus = engine.calc(coords, dirname)['gradient']
+        coords[i] -= 2*h
+        gminus = engine.calc(coords, dirname)['gradient']
+        coords[i] += h
+        Hx[i] = (gplus-gminus)/(2*h)
+    # Internal coordinate Hessian using analytic transformation
+    Hq = IC.calcHess(coords, gradx, Hx)
     Eigq = sorted(np.linalg.eigh(Hq)[0])
     logger.info("Hessian Eigenvalues (Internal):\n")
     for i in range(len(Eigq)):
